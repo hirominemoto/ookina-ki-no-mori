@@ -411,7 +411,7 @@ const shadowTex = canvasTex(128, 64, (g) => {
 function part(tex, w, h, ox, oy, order, tintable = true) {
   const geo = new THREE.PlaneGeometry(w, h); geo.translate(ox, oy, 0);
   const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, fog: false }));
-  m.renderOrder = order; m.userData.tint = tintable; return m;
+  m.renderOrder = order; m.userData.ro = order; m.userData.tint = tintable; return m;
 }
 function makeFairy(kind) {
   const root = new THREE.Group();
@@ -439,7 +439,7 @@ function makeFairy(kind) {
     pose.add(bundle); f.bundle = bundle;
     const lantern = new THREE.Group();
     const lcore = glowSprite(0xcfe8ff, 0.12, 1); const lglow = glowSprite(0x8fc4ff, 0.6, 0.7);
-    lantern.add(lcore, lglow); lantern.position.set(0, -0.17, 0.02); armR.add(lantern); f.lantern = lantern; f.lglow = lglow;
+    lcore.userData.ro = 26; lglow.userData.ro = 25; lantern.add(lcore, lglow); lantern.position.set(0, -0.17, 0.02); armR.add(lantern); f.lantern = lantern; f.lglow = lglow;
   }
   scene.add(root);
   return f;
@@ -729,7 +729,7 @@ function resetPose(f) {
 function hop(t, a, len, h) { return t > a && t < a + len ? Math.sin((t - a) / len * Math.PI) * h : 0; }
 function showBack(f, back) {
   f.body.material.map = back ? bodyBackTex : bodyTex; f.eyes.visible = !back;
-  if (f.bundle) { f.bundle.renderOrder = back ? 21 : 17; f.bundle.position.set(back ? 0.04 : -0.14, 0.05 + (back ? 0.36 : 0.5), back ? 0.02 : -0.02); f.bundle.rotation.z = back ? 0.25 : -0.15; }
+  if (f.bundle) { f.bundle.userData.ro = back ? 21 : 17; f.bundle.position.set(back ? 0.04 : -0.14, 0.05 + (back ? 0.36 : 0.5), back ? 0.02 : -0.02); f.bundle.rotation.z = back ? 0.25 : -0.15; }
 }
 
 const BLUE = new THREE.Color(0.68, 0.84, 1.0), WARMT = new THREE.Color(0.98, 0.86, 0.74);
@@ -934,6 +934,20 @@ window.renderAt = function (t) {
     p.sway.rotation.z = Math.sin(t * p.f + p.ph) * p.amp;
   }
   for (const h of huts) h.rotation.y = Math.atan2(camera.position.x - h.position.x, camera.position.z - h.position.z);
+
+  // 重なりの順番：カメラから遠い子から、その子の部品をまとめて描く
+  {
+    const wp = new THREE.Vector3();
+    const list = allFairies.filter(f => f.root.visible).map(f => { f.root.getWorldPosition(wp); return { f, d: wp.distanceToSquared(camera.position) }; });
+    list.sort((a, b) => b.d - a.d);
+    list.forEach((o, i) => {
+      const base = 100 + i * 40; o.f.__base = base;
+      o.f.root.traverse(m => { if (m.isMesh || m.isSprite) m.renderOrder = base + (m.userData.ro ?? 0); });
+    });
+    const holder = leafWorld === 'trav' || (leafWorld === 'pass' && t > 24.4) ? trav : local;
+    const hb = holder.__base ?? 100;
+    caughtLeaf.renderOrder = hb + 27; caughtGlow.renderOrder = hb + 28;
+  }
 
   // テロップと暗転
   let txt = '', op = 0;
