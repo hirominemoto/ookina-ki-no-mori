@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>おおきな木の、ある森</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+body{display:flex;align-items:center;justify-content:center}
+#wrap{position:relative;width:1280px;height:720px;flex:none;transform-origin:center center;overflow:hidden}
+canvas{display:block;width:1280px!important;height:720px!important}
+#telop{position:absolute;left:0;right:0;bottom:34px;text-align:center;color:#fff8ee;
+  font-family:'Noto Serif JP','Noto Serif CJK JP','Hiragino Mincho ProN','Yu Mincho',serif;font-weight:500;font-size:27px;
+  letter-spacing:0.1em;line-height:1.7;text-shadow:0 0 10px rgba(0,0,0,.95),0 0 3px #000;opacity:0;white-space:pre-line;pointer-events:none}
+#black{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;
+  font-family:Meiryo,'メイリオ','Hiragino Sans',sans-serif;color:#fff8ee;transition:opacity .6s}
+.overlay.hide{opacity:0;pointer-events:none}
+.title{font-family:'Noto Serif JP','Noto Serif CJK JP','Hiragino Mincho ProN','Yu Mincho',serif;font-size:46px;letter-spacing:.18em;
+  text-shadow:0 0 18px rgba(255,170,80,.6),0 0 4px #000}
+button{font-family:inherit;font-size:22px;letter-spacing:.12em;color:#3a2010;background:linear-gradient(#ffe6a8,#ffb85c);
+  border:none;border-radius:40px;padding:14px 42px;cursor:pointer;box-shadow:0 0 24px rgba(255,180,90,.55)}
+button:hover{filter:brightness(1.08)}
+.note{font-size:15px;opacity:.75;letter-spacing:.08em}
+</style>
+<script type="importmap">{"imports":{"three":"./lib/three.module.js"}}</script>
+</head><body>
+<div id="wrap">
+  <div id="telop"></div><div id="black"></div>
+  <div id="start" class="overlay">
+    <div class="title">おおきな木の、ある森</div>
+    <button id="playBtn">▶ はじめる</button>
+    <div class="note">音が出ます（37秒）</div>
+  </div>
+  <div id="end" class="overlay hide">
+    <div class="title">おしまい</div>
+    <button id="againBtn">↻ もういちど</button>
+  </div>
+</div>
+<script type="module" src="main.js"></script>
+</body></html>
